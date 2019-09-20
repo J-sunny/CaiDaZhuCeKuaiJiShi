@@ -1,0 +1,393 @@
+<template>
+  <div class="organizationalBox">
+    <p class="organiTitle">机构管理</p>
+    <p class="addSome">
+      <span @click="dialogVisibleJi=true,aTitle='添加机构'">添加机构</span>
+      <span @click="dialogVisibleJi=true,aTitle='修改机构'">修改机构</span>
+      <span @click="dialogVisibleJi=true,aTitle='删除机构'">删除机构</span>
+      <span @click="dialogVisible=true,Wtitle='添加人员'">添加人员</span></p>
+    <div>
+      <!--            表格-->
+      <div style="margin-bottom: 50px;overflow: hidden">
+        <div class="table_heser">
+          <div style='width: 180px'>机构名称</div>
+          <div style="width: 180px;">职务名称</div>
+          <div class="names">姓名及工作职责</div>
+          <div style="width: 180px;">操作</div>
+        </div>
+        <div class="table_body" v-for="item in DetailedInfo">
+          <div style='width: 180px;font-weight: bold' class="body-L"
+               :style="'height:'+item.users.length*44+'px;line-height:'+item.users.length*44+'px'">{{item.organization}}
+          </div>
+          <div class="body-r">
+            <div class="body-r_cnt" v-for="val in item.users">
+              <div style='width: 180px;float: left;'>{{val.position}}</div>
+              <div class="body-r-name">
+                <span style="color: #004B44">{{val.organization_user_name}}</span>
+                <span class="jobInfo">( {{val.job_responsibilities}})</span>
+              </div>
+              <div style='width: 180px;float: left'>
+                <el-button type="text" size="small"
+                           @click="dialogVisible=true,
+                           Wtitle='编辑机构人员信息',
+                           editInfo(val)">
+                  编辑
+                </el-button>
+                <el-button type="text" size="small" v-if="false">删除</el-button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--    添加，修改人员弹框-->
+    <el-dialog
+      :title="Wtitle"
+      :visible.sync="dialogVisible"
+      :close-on-click-modal="false"
+      @closed="closedd"
+      width="1000px">
+      <!--    机构列表-->
+      <el-form>
+        <el-form-item label="所属机构" label-width="80px">
+          <el-select v-model="organizationId" placeholder="请选择">
+            <el-option
+              v-for="item in getOrganiList"
+              :key="item.organizationId"
+              :label="item.organizationName"
+              :value="item.organizationId">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <!--  职务名称-->
+      <el-form>
+        <el-form-item label="职务名称" label-width="80px">
+          <el-input v-model="positionName" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <el-form>
+        <el-form-item label="姓名" label-width="80px">
+          <el-input v-model="organization_user_name" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <el-form>
+        <el-form-item label="工作职责" label-width="80px">
+          <el-input v-model="jobResponsibilities" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <el-form>
+        <el-form-item label="个人简介" label-width="80px">
+          <el-input v-model="introduction" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <p style="font-size: 20px;text-align: center;margin: 40px 0">编辑个人详情</p>
+      <el-form>
+        <el-form-item label="个人详情" label-width="80px">
+          <!--          <el-input v-model="personalHtmlUrl" autocomplete="off"></el-input>-->
+          <vue-ueditor-wrap @onEditorChange="onEditorChange" :contentText="personalHtmlStr"></vue-ueditor-wrap>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+    <el-button @click="dialogVisible = false">取 消</el-button>
+    <el-button type="primary" @click="dialogVisible = false,saveOrganizationUser()">确 定</el-button>
+  </span>
+    </el-dialog>
+    <!--    添加，修改机构弹框-->
+    <el-dialog
+      :title="aTitle"
+      :visible.sync="dialogVisibleJi"
+      :close-on-click-modal="false"
+      @closed="closedd"
+      width="600px">
+      <!--    机构列表-->
+      <el-form>
+        <el-form-item label="所属机构" label-width="80px" v-if="aTitle=='修改机构'||aTitle=='删除机构'">
+          <el-select v-model="updateOrganizationId" placeholder="请选择">
+            <el-option
+              v-for="item in getOrganiList"
+              :key="item.organizationId"
+              :label="item.organizationName"
+              :value="item.organizationId">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <!--  机构名称-->
+      <el-form v-if="aTitle=='修改机构'||aTitle=='添加机构'">
+        <el-form-item label="修改为" label-width="80px">
+          <el-input v-model="updateOrganizationName" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+    <el-button @click="dialogVisibleJi = false">取 消</el-button>
+    <el-button v-if="aTitle=='修改机构'||aTitle=='添加机构'" type="primary"
+               @click="dialogVisibleJi = false,saveOrganizationInfo()">确 定</el-button>
+    <el-button v-if="aTitle=='删除机构'" type="primary"
+               @click="dialogVisibleJi = false,deleteOrganization()">确 定</el-button>
+  </span>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+  import {getOrganizations, getOrganizationUsers, getOrganizationDetailedInfo, getUserInfoHtml} from "@/api/personnel";
+  import {saveOrganizationUser, saveOrganizationInfo, deleteOrganization} from "@/api/organizational";
+  import {saveNews} from "@/api/article";
+  //富文本编辑器
+  import VueUeditorWrap from '@/components/VueQuillEditor'// ES6 Module
+  export default {
+    name: "index",
+    data() {
+      return {
+        DetailedInfo: [],
+        dialogVisible: false,
+        dialogVisibleJi: false,
+        Wtitle: '',
+        aTitle: '',
+        getOrganiList: [],
+        UsersList: [],
+        //  个人信息
+        organizationId: '',
+        positionName: '',
+        organization_user_name: '',
+        jobResponsibilities: '',
+        introduction: '',
+        personalHtmlStr: '',
+        organizationUserId: '',
+        personalhtmlFile: '',
+        newsTitle: '',
+        personalHtmlUrl: '',
+        //  修改后机构名称
+        updateOrganizationName: '',
+        updateOrganizationId: '',
+        //  删除机构
+        //   organizationId:''
+      }
+    },
+    components: {
+      VueUeditorWrap
+    },
+    methods: {
+      //富文本编辑器
+      onEditorChange(val) {
+        this.personalHtmlStr = val
+      },
+      //获取机构及人员信息
+      getOrganizationDetailedInfo() {
+        getOrganizationDetailedInfo().then(data => {
+          this.DetailedInfo = data.data
+        })
+      },
+      //获取机构列表---修改人员信息
+      getOrganizations() {
+        getOrganizations().then(data => {
+          this.getOrganiList = data.data
+        })
+      },
+      // 获取机构人员列表
+      getOrganizationUsers() {
+        getOrganizationUsers().then(data => {
+          this.UsersList = data.data
+        })
+      },
+      //点击编辑机构人员信息按钮让当前信息显示在弹框上
+      editInfo(val) {
+        this.organizationId = val.organization_id
+        this.positionName = val.position
+        this.organization_user_name = val.organization_user_name
+        this.jobResponsibilities = val.job_responsibilities
+        this.introduction = val.introduction
+        this.personalHtmlUrl = val.personal_html_url
+        this.organizationUserId = val.organization_user_id
+        this.getUserInfoHtml()
+      },
+      //编辑,添加 机构人员信息
+      saveOrganizationUser(organizationUserId) {
+        saveOrganizationUser({
+          belongOrganizationId: this.organizationId,
+          introduction: this.introduction,
+          jobResponsibilities: this.jobResponsibilities,
+          organizationUserId: organizationUserId || this.organizationUserId,
+          organizationUserName: this.organization_user_name,
+          personalHtmlStr: this.personalHtmlStr,
+          position: this.positionName
+        }).then(data => {
+          this.$message.success('操作成功')
+          this.getOrganizationDetailedInfo()
+        })
+      },
+      //添加修改机构
+      saveOrganizationInfo() {
+        saveOrganizationInfo({
+          organizationId: this.updateOrganizationId,
+          organizationName: this.updateOrganizationName,
+          status: 0
+        }).then(data => {
+          this.getOrganizationDetailedInfo()
+          this.getOrganizations()
+          // this.$message.success('操作成功')
+          this.updateOrganizationId = ''
+        })
+      },
+      //删除机构
+      deleteOrganization() {
+        // this.$confirm('是否删除该机构, 是否继续?', '提示', {
+        //   confirmButtonText: '确定',
+        //   cancelButtonText: '取消',
+        //   type: 'warning'
+        // }).then(() => {
+          deleteOrganization({organizationId: this.updateOrganizationId}).then(data => {
+            this.getOrganizationDetailedInfo()
+            this.getOrganizations()
+            this.updateOrganizationId = ''
+            if (data.code == 200) {
+              this.$message({
+                type: 'success',
+                message: '删除成功!'
+              });
+            } else {
+              // this.$message.error(data.msg)
+            }
+
+          })
+        // }).catch(() => {
+        //   this.$message({
+        //     type: 'info',
+        //     message: '已取消删除'
+        //   });
+        // });
+      },
+      //添加，修改人员详情
+      // saveNews() {
+      //   console.log(this.personalHtmlStr+111111111);
+      //   saveNews({
+      //     classificationId: 3,
+      //     htmlFile: this.personalHtmlStr,
+      //     newsId: '' || this.organizationUserId,
+      //     newsTitle: this.organization_user_name,
+      //     newsTypeId: 3,
+      //   }).then(data => {
+      //     console.log(data);
+      //   })
+      // },
+      //查询人员详情信息
+      getUserInfoHtml() {
+        getUserInfoHtml({htmlUrl: this.personalHtmlUrl}).then(data => {
+          this.personalHtmlStr = data.data
+        })
+      },
+      //  Dialog 关闭动画结束时的回调
+      closedd() {
+        // this.$message.info("取消了操作")
+        this.organizationId = ''
+        this.positionName = ''
+        this.organization_user_name = ''
+        this.jobResponsibilities = ''
+        this.introduction = ''
+        this.personalHtmlUrl = ''
+        this.organizationUserId = ''
+        this.updateOrganizationId = ''
+        this.updateOrganizationName = ''
+        this.personalHtmlStr = ''
+      },
+    },
+    created() {
+      this.getOrganizationDetailedInfo()
+      this.getOrganizations()
+    }
+  }
+</script>
+
+<style scoped>
+  .organizationalBox {
+  }
+
+  .organizationalBox .organiTitle {
+    font-size: 24px;
+    text-align: center;
+    font-weight: bold;
+    margin-top: 50px;
+    margin-bottom: 50px;
+  }
+
+  .organizationalBox .addSome {
+    margin-bottom: 40px;
+  }
+
+  .organizationalBox .addSome span {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #004B44;
+    color: #FFFFFF;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+
+  /*  表格*/
+  .table_heser {
+    width: 100%;
+    text-align: center;
+    overflow: hidden;
+    line-height: 42px;
+    margin-top: 50px;
+    font-size: 14px;
+    font-family: Microsoft YaHei;
+  }
+
+  .table_heser > div {
+    border: #eee 1px solid;
+    float: left;
+    box-sizing: border-box;
+
+  }
+
+  .table_body {
+    width: 100%;
+    text-align: center;
+    position: relative;
+    box-sizing: border-box;
+    line-height: 42px;
+    font-size: 14px;
+    font-family: Microsoft YaHei;
+  }
+
+  .table_body > .body-L {
+    box-sizing: border-box;
+    float: left;
+    border: 1px #eee solid;
+  }
+
+  .names {
+    width: calc(100% - 540px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .body-r {
+    width: calc(100% - 180px);
+    float: left;
+  }
+
+  .body-r_cnt > div {
+    box-sizing: border-box;
+    border: 1px #eee solid;
+
+  }
+
+  .body-r-name {
+    width: calc(100% - 360px);
+    float: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .jobInfo {
+    font-weight: 400;
+    color: #999999;
+  }
+</style>

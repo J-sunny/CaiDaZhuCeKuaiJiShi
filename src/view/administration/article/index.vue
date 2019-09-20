@@ -1,0 +1,343 @@
+<template>
+  <div class="articleBox">
+    <div class="topBox">
+      <p class="articleTitle">文章管理</p>
+      <!--    导航分类-->
+      <span>
+      <span>请选择主页面：</span>
+      <span>
+         <el-select v-model="navValue" placeholder="全部">
+            <el-option
+              v-for="item in navList"
+              :key="item.classificationId"
+              :label="item.classificationName"
+              :value="item.classificationId">
+            </el-option>
+         </el-select>
+      </span>
+    </span>
+      <!--    小分类-->
+      <span>
+      <span>请选择新闻模块：</span>
+      <span>
+         <el-select v-model="newsTypeId" placeholder="全部">
+            <el-option
+              v-for="item in newsList"
+              :key="item.newsTypeId"
+              :label="item.newsType"
+              :value="item.newsTypeId">
+            </el-option>
+          </el-select>
+      </span>
+    </span>
+      <!--      筛选-->
+      <span class="enterArticles" @click="screen()">筛选</span>
+      <!--      录入文章-->
+      <span class="enterArticles" @click="dialogVisible=true,Wtitle='添加文章'">录入文章</span>
+    </div>
+    <!--    表格-->
+    <div class="bottomBox">
+      <el-table
+        :data="articleList"
+        border
+        style="width: 100%">
+        <el-table-column
+          prop="classificationName"
+          label="主页面"
+          width="200">
+        </el-table-column>
+        <el-table-column
+          prop="newsType"
+          label="新闻模块"
+          width="200">
+        </el-table-column>
+<!--        <el-table-column-->
+<!--          prop="newsId"-->
+<!--          label="文章ID"-->
+<!--          width="100">-->
+<!--        </el-table-column>-->
+        <el-table-column
+          prop="newsTitle"
+          label="文章标题"
+        >
+        </el-table-column>
+        <el-table-column
+          prop="createTime"
+          width="300"
+          label="创建时间"
+        >
+        </el-table-column>
+        <el-table-column
+          label="操作"
+          width="200"
+          fixed="right">
+          <template slot-scope="scope">
+            <el-button type="text" size="small" @click="dialogVisible=true,Wtitle='编辑文章',look(scope.row)">编辑</el-button>
+            <el-button type="text" size="small" @click="deleteNews(scope.row.newsId)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+    <!--    添加，修改文章弹框-->
+    <el-dialog
+      :title="Wtitle"
+      :visible.sync="dialogVisible"
+      :close-on-click-modal="false"
+      @closed="closedd"
+      width="1000px">
+      <!--    导航分类-->
+      <el-form>
+        <el-form-item label="请选择主页面" label-width="120px">
+          <el-select v-model="addNavValue" placeholder="全部" :disabled="Wtitle=='编辑文章'">
+            <el-option
+              v-for="item in addNavList"
+              :key="item.classificationId"
+              :label="item.classificationName"
+              :value="item.classificationId">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <!--    小分类-->
+      <el-form>
+        <el-form-item label="请选择新闻模块" label-width="120px">
+          <el-select v-model="addNewsTypeId" placeholder="全部" :disabled="Wtitle=='编辑文章'">
+            <el-option
+              v-for="item in addNewsList"
+              :key="item.newsTypeId"
+              :label="item.newsType"
+              :value="item.newsTypeId">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <!--  文章标题-->
+      <el-form>
+        <el-form-item label="文章标题" label-width="80px">
+          <el-input v-model="newsTitle" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <el-form>
+        <el-form-item label="文章内容" label-width="80px">
+          <vue-ueditor-wrap @onEditorChange="onEditorChange" :contentText="contentText"></vue-ueditor-wrap>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+    <el-button @click="dialogVisible = false">取 消</el-button>
+    <el-button type="primary" @click="saveNews(),dialogVisible = false">确 定</el-button>
+  </span>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+  import {getNavigationBar, getNewsType} from "@/api/administration";
+  //获取文章列表
+  import {getNewsList} from '@/api/index'
+  //富文本编辑器
+  import VueUeditorWrap from '@/components/VueQuillEditor'// ES6 Module
+  //录入/修改文章
+  import {saveNews, deleteNews} from "@/api/article";
+  //获取文章详情
+  import {getNews} from "@/api/socialServices";
+
+  export default {
+    name: "index",
+    components: {VueUeditorWrap},
+    data() {
+      return {
+        contentText: '',
+        navList: [],
+        newsList: [],
+        addNavList: [],
+        addNewsList: [],
+        addNavValue: '',
+        addNewsTypeId: '',
+        navValue: '',
+        newsTypeId: '',
+        classificationId: '1',
+        articleList: [],
+        dialogVisible: false,
+        newsTitle: '',
+        Wtitle: '',
+        newsId: '',
+        addNewsTypeIds: ''
+      }
+    },
+    methods: {
+      //文章内容
+      onEditorChange(val) {
+        this.contentText = val
+        console.log(val)
+      },
+      //获取导航栏信息
+      getNavigationBar() {
+        getNavigationBar().then(data => {
+          this.navList = data.data
+        })
+      },
+      //  获取新闻模块名字
+      getNewsType(val) {
+        console.log(val);
+        this.newsTypeId = ''
+        getNewsType({classificationId: val}).then(data => {
+          console.log(data);
+          this.newsList = data.data
+        })
+      },
+      //  获取文章列表
+      getNewsList(newsTypeId) {
+        if (newsTypeId == '') {
+          this.navValue=''
+        }
+        getNewsList({newsTypeId: newsTypeId}).then(data => {
+          console.log(data);
+          this.articleList = data.data
+        })
+      },
+      screen() {
+        console.log(this.newsTypeId);
+        this.getNewsList(this.newsTypeId)
+      },
+      //  修改录入文章
+      saveNews(newsId) {
+        console.log(this.contentText);
+        saveNews({
+          classificationId: this.addNavValue,
+          newsId: newsId,
+          htmlFile: this.contentText,
+          newsTitle: this.newsTitle,
+          newsTypeId: this.addNewsTypeId
+        }).then(data => {
+          // this.addNavValue
+          console.log(this.addNewsTypeId);
+          this.getNewsList()
+          console.log(data);
+          this.$message.success('操作成功！')
+          this.addNewsTypeId = this.addNewsTypeIds
+          this.addNavValue = ''
+          this.addNewsTypeId = ''
+          this.newsTitle = ''
+          this.newsId = ''
+          this.contentText = ''
+          this.addNewsList = []
+          // this.newsList = []
+        })
+        console.log(this.contentText);
+      },
+      //获取导航栏信息--添加修改
+      addGetNavigationBar() {
+        getNavigationBar().then(data => {
+          this.addNavList = data.data
+        })
+      },
+      //  获取新闻模块名字--添加修改
+      addGetNewsType(val) {
+        console.log(val);
+        this.newsTypeId = ''
+        if (this.Wtitle == '添加文章') {
+          this.addNewsTypeId = ''
+        }
+        console.log(this.newsTypeId);
+        getNewsType({classificationId: val}).then(data => {
+          console.log(data);
+          this.addNewsList = data.data
+        })
+      },
+      //编辑
+      look(val) {
+        console.log(val);
+        this.addNavValue = val.classificationId
+        this.addNewsTypeId = val.newsTypeId
+        console.log(this.addNewsTypeId);
+        this.newsTitle = val.newsTitle
+        this.newsId = val.newsId
+        this.getNews(val.createTime, val.newsId, val.newsTypeId)
+      },
+      //  获取文章详情
+      getNews(createTime, newsId, newsTypeId) {
+        getNews({newsTypeId: newsTypeId, createTime: createTime, newsId: newsId}).then(data => {
+          console.log(data);
+          this.contentText = data.data
+        })
+      },
+      //  删除文章
+      deleteNews(newsId) {
+        this.$confirm('是否删除该文章, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          deleteNews({newsId: newsId}).then(data => {
+            this.getNewsList(this.newsTypeId)
+          })
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          });
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
+      },
+      //  Dialog 关闭动画结束时的回调
+      closedd() {
+        // this.$message.info("取消了操作")
+        this.addNavValue = ''
+        this.addNewsTypeId = this.addNewsTypeIds
+        this.addNewsTypeId = ''
+        this.newsTitle = ''
+        this.newsId = ''
+        this.contentText = ''
+        this.addNewsList = []
+        // this.newsList = []
+        this.contentText = ''
+      }
+    },
+    watch: {
+      navValue(val) {
+        console.log(val);
+        this.getNewsType(val)
+      },
+      addNavValue(val) {
+        this.addGetNewsType(val)
+      },
+    },
+    created() {
+      this.getNavigationBar()
+      this.getNewsList()
+      this.addGetNavigationBar()
+    }
+  }
+</script>
+
+<style scoped>
+  .articleBox {
+  }
+
+  .articleBox .articleTitle {
+    font-size: 24px;
+    text-align: center;
+    font-weight: bold;
+    margin-top: 50px;
+    margin-bottom: 50px;
+  }
+
+  .articleBox .enterArticles {
+    margin-left: 50px;
+    cursor: pointer;
+  }
+
+  .articleBox .enterArticles:hover {
+    color: #004B44;
+    font-weight: bold;
+    font-size: 17px;
+  }
+
+  .articleBox .bottomBox {
+    text-align: center;
+    margin-top: 50px;
+  }
+</style>
