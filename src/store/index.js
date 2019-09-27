@@ -6,7 +6,7 @@ const state={
   newsList:[],
   classificationId:'1',
   newsTypeId:'',
-  activeName:'w'
+  activeName:'w',
 };
 state.isToken=getToken()!= undefined&&getToken()!=''&&getToken()!=null
 

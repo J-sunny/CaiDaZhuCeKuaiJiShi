@@ -7,12 +7,12 @@
            v-for="(val) in item.users"
            :key="val.organization_user_id">
         <div class="personnelPic">
-          <img src="../../../static/imgs/p1.png" alt="">
+          <img :src="BAST_API+val.user_img_url" alt="">
         </div>
         <div class="personnelInfoBox">
-          <p class="personnelName">﻿{{val.organization_user_name}}</p>
-          <p class="position">﻿{{val.position}}</p>
-          <p class="personnelInfo">﻿{{val.introduction}}</p>
+          <p :title="val.organization_user_name" class="personnelName">﻿{{val.organization_user_name}}</p>
+          <p :title="val.position" class="position">﻿{{val.position}}</p>
+          <div :title="val.introduction" class="personnelInfo">{{val.introduction}}</div>
         </div>
       </div>
     </div>
@@ -23,12 +23,12 @@
   // 获取人员机构列表
   import {getOrganizationDetailedInfo, getUserInfoHtml} from "@/api/personnel";
 
-
   export default {
     name: 'personnel',
     data() {
       return {
-        DetailedInfo: []
+        DetailedInfo: [],
+        BAST_API: '',
       }
     },
     methods: {
@@ -41,15 +41,16 @@
       },
 
       //  跳转
-      linkTo(personal_html_url,organization_user_name) {
+      linkTo(personal_html_url, organization_user_name) {
         console.log(personal_html_url);
         // :to="{path:'/personnel/personnelInfo',query:{id:1}}"
         window.location = '#/personnel/personnelInfo'
-        this.$store.state.htmlUrl=personal_html_url
-        this.$store.state.organization_user_name=organization_user_name
+        this.$store.state.htmlUrl = personal_html_url
+        this.$store.state.organization_user_name = organization_user_name
       }
     },
     created() {
+      this.BAST_API = process.env.BASE_API
       this.getOrganizationDetailedInfo()
     }
   }
@@ -106,6 +107,7 @@
     width: 276px;
     height: 188px;
     display: block;
+    background-color: #075A52;
   }
 
   .personnel .personnelName {
@@ -125,6 +127,7 @@
   }
 
   .personnel .personnelInfo {
+    width: 240px;
     font-size: 12px;
     font-family: Microsoft YaHei;
     font-weight: 400;
@@ -134,7 +137,13 @@
     margin-top: 16px;
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 4;
+    -webkit-line-clamp: 5;
+    /*overflow: hidden;*/
+
+
+    　word-wrap: break-word;
+    word-break: break-all;
     overflow: hidden;
   }
+
 </style>

@@ -92,6 +92,7 @@
             <el-option
               v-for="item in addNavList"
               :key="item.classificationId"
+              :disabled="item.classificationName=='机构人员'"
               :label="item.classificationName"
               :value="item.classificationId">
             </el-option>
@@ -204,7 +205,7 @@
         console.log(this.contentText);
         saveNews({
           classificationId: this.addNavValue,
-          newsId: newsId,
+          newsId: this.newsId,
           htmlFile: this.contentText,
           newsTitle: this.newsTitle,
           newsTypeId: this.addNewsTypeId

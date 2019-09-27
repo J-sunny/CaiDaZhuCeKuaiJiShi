@@ -51,7 +51,7 @@
     },
     methods: {
       active (val) {
-        console.log(val)
+        // console.log(val)
         this.activeName = val
       }
     }

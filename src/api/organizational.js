@@ -23,3 +23,12 @@ export function deleteOrganization(data) {
     data
   })
 }
+
+//上传头像
+export function uploadUserImg(data) {
+  return request({
+    url: '/manager/organization/uploadUserImg',
+    method: 'post',
+    data
+  })
+}

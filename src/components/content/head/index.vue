@@ -5,14 +5,18 @@
       <img class="logoPic" src="../../../../static/images/LOGO.png" alt="">
     </div>
     <div class="tabsBox">
-      <ul class="tabSmall">
-        <li v-for="item in navList" :key="item.classificationId"
+      <ul class="tabSmall" v-if="">
+        <li class="tabBar" v-for="item in navList" :key="item.classificationId"
             :class="$store.state.classificationId==item.classificationId?'activeStyle':''">
-          <a @click="links(item.classificationId,item.classificationName)">{{item.classificationName}}</a>
+          <label @click="links(item,item.classificationId,item.classificationName)">{{item.classificationName}}</label>
+          <div class="hoverBox">
+            <p @click="linkTo(item.classificationId,val.newsTypeId,item.classificationName)" class="hoverLists"
+               v-for="val in item.newsTypes"
+               :key="val.newsTypeId">
+              {{val.newsType}}
+            </p>
+          </div>
         </li>
-<!--        <li v-for="item in 5" :key="item.item">-->
-<!--          <a>{{item}}</a>-->
-<!--        </li>-->
       </ul>
     </div>
     <router-view/>
@@ -21,43 +25,82 @@
 </template>
 <script>
   import Footer from "@/components/content/footer"
-  import {getNavigationBar} from '@/api/index'
+  import {getNavigationBar, getNewsType} from '@/api/index'
 
   export default {
     name: 'index',
     data() {
       return {
-        navList: []
+        navList: [],
+        getNewsTypeList: [],
+        hidden: true
       }
     },
     components: {
       Footer
     },
     methods: {
-      links(id,classificationName) {
-        this.$store.state.newsTypeId=''
-        this.$store.state.classificationId=id
-        this.$store.state.classificationName=classificationName
+
+
+      links(item, id, classificationName) {
+        console.log(item)
+        if (item.newsTypes == []) {
+          if (id == '1') {
+            window.location = '#/home'
+          }
+        }
+        else {
+          if (id == '1') {
+            window.location = '#/home'
+          } else if (id == '2') {
+            window.location = '#/centre?newsTypeId=' + item.newsTypes[0].newsTypeId
+          } else if (id == '3') {
+            window.location = '#/personnel?newsTypeId=' + item.newsTypes[0].newsTypeId
+          } else {
+            window.location = '#/socialServices?picId=' + id + '&ids=0&listID=' + this.$store.state.listID
+          }
+        }
+        this.$store.state.newsTypeId = ''
+        this.$store.state.classificationId = id
+        this.$store.state.classificationName = classificationName
         // console.log(this.$store.state)
         this.$store.addStore()
 
-        console.log(id);
-        if (id == '1') {
+        // console.log(id);
+
+      },
+      linkTo(classificationId, newsTypeId, classificationName) {
+        // console.log(classificationId, newsTypeId, classificationName)
+        console.log(newsTypeId)
+        this.$store.state.newsTypeId = newsTypeId
+        this.$store.state.classificationId = classificationId
+        this.$store.state.classificationName = classificationName
+        // console.log(this.$store.state)
+        this.$store.addStore()
+        if (classificationId == '1') {
           window.location = '#/home'
-        } else if (id=='2') {
-          window.location='#/centre'
+        } else if (classificationId == '2') {
+          window.location = '#/centre?newsTypeId=' + newsTypeId
+        } else if (classificationId == '3') {
+          if (newsTypeId == 3) {
+            console.log(newsTypeId);
+            window.location = '#/personnel/index?newsTypeId=' + newsTypeId
+          }
+          if (newsTypeId == 23) {
+            console.log(newsTypeId);
+
+            window.location = '#/personnel/researcher?newsTypeId=' + newsTypeId
+          }
+        } else {
+          window.location = '#/socialServices?picId=' + classificationId + '&ids=0&listID=' + this.$store.state.newsTypeId
         }
-        else if (id=='3') {
-          window.location='#/personnel'
-        }
-        else{
-          window.location='#/socialServices?picId='+id+'&ids=0&listID='+this.$store.state.listID
-        }
-      }
+      },
+
     },
     created() {
+
       getNavigationBar().then(data => {
-        console.log(data);
+        // console.log(data);
         this.navList = data.data
       })
     }
@@ -107,9 +150,19 @@
     width: 128px;
     line-height: 48px;
     text-align: center;
+    position: relative;
   }
 
-  .Box .tabsBox .tabSmall li a {
+  .Box .tabsBox .tabSmall li:hover {
+    background-color: #075A52;
+  }
+
+  .Box .tabsBox .tabSmall li:hover label {
+    color: #FFFFFF;
+  }
+
+
+  .Box .tabsBox .tabSmall li label {
     display: inline-block;
     width: 128px;
     text-decoration: none;
@@ -125,7 +178,26 @@
     opacity: 1;
   }
 
-  .Box .tabsBox .tabSmall .activeStyle a {
+  .Box .tabsBox .tabSmall .activeStyle label {
+    color: #FFFFFF;
+  }
+
+  .Box .tabSmall .tabBar:hover .hoverLists {
+    display: block;
+  }
+
+  .hoverBox {
+    width: 128px;
+    position: absolute;
+    background-color: #FFFFFF;
+  }
+
+  .hoverBox .hoverLists {
+    display: none;
+  }
+
+  .hoverBox .hoverLists:hover {
+    background-color: #075A52;
     color: #FFFFFF;
   }
 

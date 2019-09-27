@@ -16,3 +16,12 @@ export function getNewsList(data) {
     params:data
   })
 }
+//获取文章类型
+export function getNewsType(data) {
+  return request({
+    url: '/manager/systemData/getNewsType',
+    method: 'GET',
+    params:data
+  })
+}
+

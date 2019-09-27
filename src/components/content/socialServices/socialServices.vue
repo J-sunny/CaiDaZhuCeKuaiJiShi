@@ -2,7 +2,7 @@
   <div class="dynamicsBox">
     <!--     banner-->
     <div class="bannerBox">
-      <img class="bannerPic" :src="'../../../../static/images/'+picId+'.png'" alt="">
+      <img class="bannerPic" :src="'./static/images/'+picId+'.png'" alt="">
     </div>
     <!--    社会服务-->
     <div class="dynamics">

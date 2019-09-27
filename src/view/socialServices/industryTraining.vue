@@ -4,7 +4,7 @@
       <div @click="linkTo(item.newsId,item.newsTypeId,item.createTime,item.newsTitle,item.searchCount)"
            class="industryBox" v-for="item in newsList" :key="item.newsId">
         <!--      图片-->
-        <div class="newsPic">
+        <div class="newsPic" v-if="false">
           <img src="../../../static/imgs/Tu(8).png" alt="">
         </div>
         <!--      标题和时间-->

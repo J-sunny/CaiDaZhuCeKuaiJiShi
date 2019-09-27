@@ -1,6 +1,6 @@
 <template>
   <div class="organizationalBox">
-    <p class="organiTitle">机构管理</p>
+    <p class="organiTitle">机构及人员管理</p>
     <p class="addSome">
       <span @click="dialogVisibleJi=true,aTitle='添加机构'">添加机构</span>
       <span @click="dialogVisibleJi=true,aTitle='修改机构'">修改机构</span>
@@ -72,6 +72,22 @@
           <el-input v-model="organization_user_name" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
+      <!--      头像-->
+      <el-form>
+        <el-form-item label="人员头像" label-width="80px">
+          <el-upload
+            class="avatar-uploader"
+            :action="actionUrl"
+            :headers="myHeaders"
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="beforeAvatarUpload">
+            <img v-if="imageUrl" :src="imageUrl" class="avatar">
+            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+          </el-upload>
+        </el-form-item>
+      </el-form>
+
       <el-form>
         <el-form-item label="工作职责" label-width="80px">
           <el-input v-model="jobResponsibilities" autocomplete="off"></el-input>
@@ -133,11 +149,12 @@
 
 <script>
   import {getOrganizations, getOrganizationUsers, getOrganizationDetailedInfo, getUserInfoHtml} from "@/api/personnel";
-  import {saveOrganizationUser, saveOrganizationInfo, deleteOrganization} from "@/api/organizational";
+  import {saveOrganizationUser, saveOrganizationInfo, deleteOrganization, uploadUserImg} from "@/api/organizational";
   import {saveNews} from "@/api/article";
   //富文本编辑器
   import VueUeditorWrap from '@/components/VueQuillEditor'// ES6 Module
   export default {
+
     name: "index",
     data() {
       return {
@@ -162,8 +179,13 @@
         //  修改后机构名称
         updateOrganizationName: '',
         updateOrganizationId: '',
+        imageUrl: '',
         //  删除机构
-        //   organizationId:''
+        //   organizationId:'',
+        actionUrl: '',
+        myHeaders: {'X-token': localStorage.getItem('token')},
+        userImgUrl: '',
+        BASE_API: ''
       }
     },
     components: {
@@ -194,6 +216,7 @@
       },
       //点击编辑机构人员信息按钮让当前信息显示在弹框上
       editInfo(val) {
+        console.log(val);
         this.organizationId = val.organization_id
         this.positionName = val.position
         this.organization_user_name = val.organization_user_name
@@ -201,6 +224,7 @@
         this.introduction = val.introduction
         this.personalHtmlUrl = val.personal_html_url
         this.organizationUserId = val.organization_user_id
+        this.imageUrl = this.BASE_API + val.user_img_url
         this.getUserInfoHtml()
       },
       //编辑,添加 机构人员信息
@@ -212,7 +236,8 @@
           organizationUserId: organizationUserId || this.organizationUserId,
           organizationUserName: this.organization_user_name,
           personalHtmlStr: this.personalHtmlStr,
-          position: this.positionName
+          position: this.positionName,
+          userImgUrl: this.userImgUrl
         }).then(data => {
           this.$message.success('操作成功')
           this.getOrganizationDetailedInfo()
@@ -231,6 +256,11 @@
           this.updateOrganizationId = ''
         })
       },
+      //上传头像
+      uploadUserImg() {
+        uploadUserImg({})
+      },
+
       //删除机构
       deleteOrganization() {
         // this.$confirm('是否删除该机构, 是否继续?', '提示', {
@@ -238,20 +268,20 @@
         //   cancelButtonText: '取消',
         //   type: 'warning'
         // }).then(() => {
-          deleteOrganization({organizationId: this.updateOrganizationId}).then(data => {
-            this.getOrganizationDetailedInfo()
-            this.getOrganizations()
-            this.updateOrganizationId = ''
-            if (data.code == 200) {
-              this.$message({
-                type: 'success',
-                message: '删除成功!'
-              });
-            } else {
-              // this.$message.error(data.msg)
-            }
+        deleteOrganization({organizationId: this.updateOrganizationId}).then(data => {
+          this.getOrganizationDetailedInfo()
+          this.getOrganizations()
+          this.updateOrganizationId = ''
+          if (data.code == 200) {
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            });
+          } else {
+            // this.$message.error(data.msg)
+          }
 
-          })
+        })
         // }).catch(() => {
         //   this.$message({
         //     type: 'info',
@@ -291,11 +321,34 @@
         this.updateOrganizationId = ''
         this.updateOrganizationName = ''
         this.personalHtmlStr = ''
+        this.imageUrl = ''
       },
+
+
+      handleAvatarSuccess(res, file) {
+        this.imageUrl = URL.createObjectURL(file.raw);
+        console.log(res, file)
+        this.userImgUrl = res.data
+      },
+      beforeAvatarUpload(file) {
+        const isJPG = file.type === 'image/jpeg';
+        const isLt2M = file.size / 1024 / 1024 < 2;
+
+        if (!isJPG) {
+          this.$message.error('上传头像图片只能是 JPG 格式!');
+        }
+        if (!isLt2M) {
+          this.$message.error('上传头像图片大小不能超过 2MB!');
+        }
+        return isJPG && isLt2M;
+      }
+
     },
     created() {
       this.getOrganizationDetailedInfo()
       this.getOrganizations()
+      this.actionUrl = process.env.BASE_API + '/manager/organization/uploadUserImg'
+      this.BASE_API = process.env.BASE_API
     }
   }
 </script>
@@ -389,5 +442,33 @@
   .jobInfo {
     font-weight: 400;
     color: #999999;
+  }
+
+
+  .avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+  }
+
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 178px;
+    height: 178px;
+    line-height: 178px;
+    text-align: center;
+  }
+
+  .avatar {
+    width: 178px;
+    height: 178px;
+    display: block;
   }
 </style>

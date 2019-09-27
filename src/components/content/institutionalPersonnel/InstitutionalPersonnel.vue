@@ -2,7 +2,8 @@
   <div class="institutionalPersonnelBox">
     <!--     banner-->
     <div class="bannerBox">
-      <img class="bannerPic" src="../../../../static/images/banner3.png" alt="">
+      <img class="bannerPic"     :src="'./static/images/'+picId+'.png'"
+      alt="">
     </div>
     <!--    机构人员-->
     <div class="institutionalPersonnel">
@@ -13,15 +14,15 @@
       <div class="tabsBox">
         <!--        左边-->
         <div class="tabsBoxLeft">
-          <p @click="active('mechanism')" :class="activeName=='mechanism'?'fontColors':''">
+          <p @click="active('3')" :class="activeName=='3'?'fontColors':''">
             <router-link to="/personnel/index">
-              <span class="spot"><span v-if="activeName=='mechanism'">●</span></span>&nbsp;机构设置
+              <span class="spot"><span v-if="activeName=='3'">●</span></span>&nbsp;机构设置
             </router-link>
           </p>
 
-          <p @click="active('person')" :class="activeName=='person'?'fontColors':''">
+          <p @click="active('23')" :class="activeName=='23'?'fontColors':''">
             <router-link to="/personnel/researcher">
-              <span class="spot"><span v-if="activeName=='person'">●</span></span>&nbsp;研究人员
+              <span class="spot"><span v-if="activeName=='23'">●</span></span>&nbsp;研究人员
             </router-link>
           </p>
         </div>
@@ -41,8 +42,17 @@
     name: 'institutionalPersonnelBox',
     data () {
       return {
-        activeName: 'mechanism'
+        activeName: this.$route.query.newsTypeId,
+        picId: this.$route.query.picId || this.$store.state.classificationId,
+
       }
+    },
+    watch: {
+      $route(to) {
+        if (this.activeName != to.query.newsTypeId) {
+          this.activeName = to.query.newsTypeId
+        }
+      },
     },
     methods: {
       active (val) {
