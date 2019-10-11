@@ -19,13 +19,12 @@
             toolbar:[
               ['bold', 'italic', 'underline', 'strike','code','image'],        // toggled buttons
               [{ 'header': 1 }, { 'header': 2 }],
-              [{ 'size': ['small', false, 'large', 'huge'] }],
               [{ 'list': 'ordered'}, { 'list': 'bullet' }],
               [{ 'indent': '-1'}, { 'indent': '+1' }],
               [{ 'direction': 'rtl' }],
               [{ 'color': [] }, { 'background': [] }],
-              [{ 'font': [] }],
-              ['blockquote', 'code-block'],
+              [{ 'align': [] }],
+              ['blockquote'],
             ]
           }
         }

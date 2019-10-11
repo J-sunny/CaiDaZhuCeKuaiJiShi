@@ -20,9 +20,9 @@
             </router-link>
           </p>
 
-          <p @click="active('23')" :class="activeName=='23'?'fontColors':''">
+          <p @click="active('4')" :class="activeName=='4'?'fontColors':''">
             <router-link to="/personnel/researcher">
-              <span class="spot"><span v-if="activeName=='23'">●</span></span>&nbsp;研究人员
+              <span class="spot"><span v-if="activeName=='4'">●</span></span>&nbsp;研究人员
             </router-link>
           </p>
         </div>

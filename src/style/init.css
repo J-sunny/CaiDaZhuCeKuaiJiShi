@@ -78,3 +78,7 @@
   margin-top: 50px;
 }
 
+.ql-color.ql-picker,.ql-background.ql-picker,.ql-align.ql-picker{
+  position: relative;
+  top: -6px;
+}

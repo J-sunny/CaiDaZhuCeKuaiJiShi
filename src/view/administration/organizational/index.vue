@@ -183,7 +183,7 @@
         //  删除机构
         //   organizationId:'',
         actionUrl: '',
-        myHeaders: {'X-token': localStorage.getItem('token')},
+        myHeaders: {'X-token': this.$store.state.XToken},
         userImgUrl: '',
         BASE_API: ''
       }
@@ -217,6 +217,8 @@
       //点击编辑机构人员信息按钮让当前信息显示在弹框上
       editInfo(val) {
         console.log(val);
+        console.log(this.$store.state.XToken);
+        console.log(555);
         this.organizationId = val.organization_id
         this.positionName = val.position
         this.organization_user_name = val.organization_user_name

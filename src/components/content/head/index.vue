@@ -86,7 +86,7 @@
             console.log(newsTypeId);
             window.location = '#/personnel/index?newsTypeId=' + newsTypeId
           }
-          if (newsTypeId == 23) {
+          if (newsTypeId == 4) {
             console.log(newsTypeId);
 
             window.location = '#/personnel/researcher?newsTypeId=' + newsTypeId

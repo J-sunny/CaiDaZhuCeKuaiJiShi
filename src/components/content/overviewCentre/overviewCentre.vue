@@ -23,7 +23,7 @@
           </p>
         </div>
         <!--        右边-->
-        <div class="tabsBoxRight">
+        <div class="tabsBoxRight" v-if="getNewsLists!=[]">
           <!--   主任致辞       -->
           <div class="zhuren" v-if="active==1">
             <p class="addressDirector">{{getNewsLists.newsTitle}}</p>
@@ -126,6 +126,7 @@
       },
       //
       change(val) {
+        console.log(val);
         window.location = '#/centre?newsTypeId=' + val
       },
       //微博分享

@@ -4,6 +4,7 @@ const TokenKey = 'X-Token'
 
 export function getToken(val) {
   return Cookies.get(val||TokenKey)
+  console.log(val);
 }
 
 export function setToken(token,val) {
