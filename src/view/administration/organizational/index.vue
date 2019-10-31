@@ -102,7 +102,9 @@
       <el-form>
         <el-form-item label="个人详情" label-width="80px">
           <!--          <el-input v-model="personalHtmlUrl" autocomplete="off"></el-input>-->
-          <vue-ueditor-wrap @onEditorChange="onEditorChange" :contentText="personalHtmlStr"></vue-ueditor-wrap>
+<!--          <vue-ueditor-wrap @onEditorChange="onEditorChange" :contentText="personalHtmlStr"></vue-ueditor-wrap>-->
+          <editor-bar v-model="personalHtmlStr" :isClear="isClear" @change="change"></editor-bar>
+
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -151,14 +153,18 @@
   import {getOrganizations, getOrganizationUsers, getOrganizationDetailedInfo, getUserInfoHtml} from "@/api/personnel";
   import {saveOrganizationUser, saveOrganizationInfo, deleteOrganization, uploadUserImg} from "@/api/organizational";
   import {saveNews} from "@/api/article";
+
   //富文本编辑器
   import VueUeditorWrap from '@/components/VueQuillEditor'// ES6 Module
+  import EditorBar from '@/components/wangEnduit'
+
   export default {
 
     name: "index",
     data() {
       return {
         DetailedInfo: [],
+        isClear: false,
         dialogVisible: false,
         dialogVisibleJi: false,
         Wtitle: '',
@@ -189,12 +195,16 @@
       }
     },
     components: {
-      VueUeditorWrap
+      VueUeditorWrap,
+      EditorBar
     },
     methods: {
-      //富文本编辑器
-      onEditorChange(val) {
-        this.personalHtmlStr = val
+      // //富文本编辑器
+      // onEditorChange(val) {
+      //   this.personalHtmlStr = val
+      // },
+      change(val) {
+        console.log(val)
       },
       //获取机构及人员信息
       getOrganizationDetailedInfo() {

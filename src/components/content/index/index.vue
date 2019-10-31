@@ -83,13 +83,13 @@
     methods: {
       //  获取中心新闻文章列表
       getCenterNewsList() {
-        getNewsList({newsTypeId: 5}).then(data => {
+        getNewsList({newsTypeId: 6}).then(data => {
           this.centerNews = data.data
         })
       },
       //  获取行业资讯文章列表
       getHangyeNewsList() {
-        getNewsList({newsTypeId: 4}).then(data => {
+        getNewsList({newsTypeId: 5}).then(data => {
           console.log(data);
           this.hangye = data.data
         })

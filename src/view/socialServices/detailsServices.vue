@@ -38,7 +38,8 @@
       return {
         newsId: this.$route.query.newsId,
         newsTypeId: this.$route.query.newsTypeId,
-        getNewsDetails: []
+        getNewsDetails: [],
+        scrollTop:0
       }
     },
     methods: {
@@ -54,9 +55,22 @@
           // console.log(data);
         })
       },
+      goTop(){
+        if(document.body.scrollTop>0){
+          console.log(1);
+          window.scrollTo(0,-1);
+          document.body.scrollTop=0;
+        }
+        window.scrollTo(0,-1);
+        document.body.scrollTop=0;
+      }
     },
     created() {
       this.getNews()
+      this.goTop()
+      // $('body,html').animate({
+      //   scrollTop: 0
+      // });
     }
   }
 </script>

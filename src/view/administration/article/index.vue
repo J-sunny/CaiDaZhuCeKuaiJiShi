@@ -120,7 +120,9 @@
       </el-form>
       <el-form>
         <el-form-item label="文章内容" label-width="80px">
-          <vue-ueditor-wrap @onEditorChange="onEditorChange" :contentText="contentText"></vue-ueditor-wrap>
+<!--          <vue-ueditor-wrap @onEditorChange="onEditorChange" :contentText="contentText"></vue-ueditor-wrap>-->
+          <editor-bar v-model="contentText" :isClear="isClear" @change="change"></editor-bar>
+
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -137,6 +139,8 @@
   import {getNewsList} from '@/api/index'
   //富文本编辑器
   import VueUeditorWrap from '@/components/VueQuillEditor'// ES6 Module
+  import EditorBar from '@/components/wangEnduit'
+
   //录入/修改文章
   import {saveNews, deleteNews} from "@/api/article";
   //获取文章详情
@@ -144,10 +148,11 @@
 
   export default {
     name: "index",
-    components: {VueUeditorWrap},
+    components: {VueUeditorWrap,EditorBar},
     data() {
       return {
         contentText: '',
+        isClear: false,
         navList: [],
         newsList: [],
         addNavList: [],
@@ -167,9 +172,13 @@
     },
     methods: {
       //文章内容
-      onEditorChange(val) {
-        this.contentText = val
+      // onEditorChange(val) {
+      //   this.contentText = val
+      //   console.log(val)
+      // },
+      change(val) {
         console.log(val)
+
       },
       //获取导航栏信息
       getNavigationBar() {
