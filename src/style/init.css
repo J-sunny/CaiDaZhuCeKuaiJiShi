@@ -54,10 +54,11 @@
 }
 
 /*管理员登录页面*/
-.loginBox .el-input{
+.loginBox .el-input {
   width: 90%;
 }
-.loginBox .el-form-item__label{
+
+.loginBox .el-form-item__label {
   color: #FFFFFF;
 }
 
@@ -74,11 +75,16 @@
   width: 100%;
 }
 
-.organizationalBox .el-dialog__footer{
+.organizationalBox .el-dialog__footer {
   margin-top: 50px;
 }
 
-.ql-color.ql-picker,.ql-background.ql-picker,.ql-align.ql-picker{
+.ql-color.ql-picker, .ql-background.ql-picker, .ql-align.ql-picker {
   position: relative;
   top: -6px;
+}
+
+.organizationalBox .el-form-item__content,
+.articleBox .el-form-item__content {
+  line-height: normal;
 }

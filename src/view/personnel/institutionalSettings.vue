@@ -99,9 +99,11 @@
     text-align: center;
     position: relative;
     box-sizing: border-box;
-    line-height: 42px;
+    line-height: 42.8px;
     font-size: 14px;
     font-family: Microsoft YaHei;
+    overflow: hidden;
+
   }
 
   .table_body > .body-L {
@@ -117,6 +119,10 @@
   .body-r {
     width: calc(100% - 180px);
     float: left;
+  }
+
+  .body-r_cnt {
+    overflow: hidden;
   }
 
   .body-r_cnt > div {

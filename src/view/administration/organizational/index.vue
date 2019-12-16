@@ -100,11 +100,11 @@
       </el-form>
       <p style="font-size: 20px;text-align: center;margin: 40px 0">编辑个人详情</p>
       <el-form>
-        <el-form-item label="个人详情" label-width="80px">
+        <el-form-item style="line-height: normal" label="个人详情" label-width="80px">
           <!--          <el-input v-model="personalHtmlUrl" autocomplete="off"></el-input>-->
-<!--          <vue-ueditor-wrap @onEditorChange="onEditorChange" :contentText="personalHtmlStr"></vue-ueditor-wrap>-->
-          <editor-bar v-model="personalHtmlStr" :isClear="isClear" @change="change"></editor-bar>
-
+          <!--          <vue-ueditor-wrap @onEditorChange="onEditorChange" :contentText="personalHtmlStr"></vue-ueditor-wrap>-->
+<!--          <editor-bar v-model="personalHtmlStr" :isClear="isClear" @change="change"></editor-bar>-->
+          <Uediter  v-model="personalHtmlStr" :config="ueditor.config" ref="ue"></Uediter>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -134,7 +134,7 @@
       </el-form>
       <!--  机构名称-->
       <el-form v-if="aTitle=='修改机构'||aTitle=='添加机构'">
-        <el-form-item label="修改为" label-width="80px">
+        <el-form-item :label="aTitle=='修改机构'?'修改为':'添加机构'" label-width="80px">
           <el-input v-model="updateOrganizationName" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
@@ -157,6 +157,7 @@
   //富文本编辑器
   import VueUeditorWrap from '@/components/VueQuillEditor'// ES6 Module
   import EditorBar from '@/components/wangEnduit'
+  import Uediter from '@/components/ue.vue'
 
   export default {
 
@@ -191,18 +192,34 @@
         actionUrl: '',
         myHeaders: {'X-token': this.$store.state.XToken},
         userImgUrl: '',
-        BASE_API: ''
+        BASE_API: '',
+
+        dat: {
+          content: ''
+        },
+        ueditor: {
+          value: '编辑器默认文字',
+          config: {}
+        }
       }
     },
     components: {
       VueUeditorWrap,
-      EditorBar
+      EditorBar,
+      Uediter
     },
     methods: {
       // //富文本编辑器
       // onEditorChange(val) {
       //   this.personalHtmlStr = val
       // },
+      returnContent () {
+
+        this.dat.content = this.$refs.ue.getUEContent()
+
+        console.log(this.dat.content)
+
+      },
       change(val) {
         console.log(val)
       },
@@ -241,6 +258,7 @@
       },
       //编辑,添加 机构人员信息
       saveOrganizationUser(organizationUserId) {
+        this.personalHtmlStr=this.$refs.ue.getUEContent()
         saveOrganizationUser({
           belongOrganizationId: this.organizationId,
           introduction: this.introduction,
@@ -318,6 +336,8 @@
       getUserInfoHtml() {
         getUserInfoHtml({htmlUrl: this.personalHtmlUrl}).then(data => {
           this.personalHtmlStr = data.data
+          this.$refs.ue.editor.body.innerHTML=this.personalHtmlStr
+
         })
       },
       //  Dialog 关闭动画结束时的回调
@@ -414,9 +434,10 @@
     text-align: center;
     position: relative;
     box-sizing: border-box;
-    line-height: 42px;
+    line-height: 42.6px;
     font-size: 14px;
     font-family: Microsoft YaHei;
+    overflow: hidden;
   }
 
   .table_body > .body-L {
@@ -483,4 +504,11 @@
     height: 178px;
     display: block;
   }
+
+  .avatar-uploader-icon {
+    border: 1px solid #DCDFE6;
+    border-radius: 10px;
+
+  }
+
 </style>

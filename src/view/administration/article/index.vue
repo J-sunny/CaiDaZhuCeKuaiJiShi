@@ -51,11 +51,11 @@
           label="新闻模块"
           width="200">
         </el-table-column>
-<!--        <el-table-column-->
-<!--          prop="newsId"-->
-<!--          label="文章ID"-->
-<!--          width="100">-->
-<!--        </el-table-column>-->
+        <!--        <el-table-column-->
+        <!--          prop="newsId"-->
+        <!--          label="文章ID"-->
+        <!--          width="100">-->
+        <!--        </el-table-column>-->
         <el-table-column
           prop="newsTitle"
           label="文章标题"
@@ -120,9 +120,9 @@
       </el-form>
       <el-form>
         <el-form-item label="文章内容" label-width="80px">
-<!--          <vue-ueditor-wrap @onEditorChange="onEditorChange" :contentText="contentText"></vue-ueditor-wrap>-->
-          <editor-bar v-model="contentText" :isClear="isClear" @change="change"></editor-bar>
-
+          <!--          <vue-ueditor-wrap @onEditorChange="onEditorChange" :contentText="contentText"></vue-ueditor-wrap>-->
+          <!--          <editor-bar v-model="contentText" :isClear="isClear" @change="change"></editor-bar>-->
+          <Uediter v-model="contentText" :config="ueditor.config" ref="ue"></Uediter>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -140,6 +140,8 @@
   //富文本编辑器
   import VueUeditorWrap from '@/components/VueQuillEditor'// ES6 Module
   import EditorBar from '@/components/wangEnduit'
+  import Uediter from '@/components/ue.vue'
+
 
   //录入/修改文章
   import {saveNews, deleteNews} from "@/api/article";
@@ -148,7 +150,7 @@
 
   export default {
     name: "index",
-    components: {VueUeditorWrap,EditorBar},
+    components: {VueUeditorWrap, EditorBar, Uediter},
     data() {
       return {
         contentText: '',
@@ -167,7 +169,14 @@
         newsTitle: '',
         Wtitle: '',
         newsId: '',
-        addNewsTypeIds: ''
+        addNewsTypeIds: '',
+        dat: {
+          content: ''
+        },
+        ueditor: {
+          value: '编辑器默认文字',
+          config: {}
+        }
       }
     },
     methods: {
@@ -198,7 +207,7 @@
       //  获取文章列表
       getNewsList(newsTypeId) {
         if (newsTypeId == '') {
-          this.navValue=''
+          this.navValue = ''
         }
         getNewsList({newsTypeId: newsTypeId}).then(data => {
           console.log(data);
@@ -210,7 +219,8 @@
         this.getNewsList(this.newsTypeId)
       },
       //  修改录入文章
-      saveNews(newsId) {
+      saveNews() {
+        this.contentText=this.$refs.ue.getUEContent()
         console.log(this.contentText);
         saveNews({
           classificationId: this.addNavValue,
@@ -269,6 +279,7 @@
         getNews({newsTypeId: newsTypeId, createTime: createTime, newsId: newsId}).then(data => {
           console.log(data);
           this.contentText = data.data
+          this.$refs.ue.editor.body.innerHTML=this.contentText
         })
       },
       //  删除文章
@@ -303,7 +314,6 @@
         this.contentText = ''
         this.addNewsList = []
         // this.newsList = []
-        this.contentText = ''
       }
     },
     watch: {
@@ -319,6 +329,7 @@
       this.getNavigationBar()
       this.getNewsList()
       this.addGetNavigationBar()
+
     }
   }
 </script>

@@ -51,12 +51,22 @@
           <!--          分享到-->
           <div class="shareBox">
             <span class="share">分享到</span>
-            <span @click="shareToXl(222,'http://localhost:8080/#/centre?newsTypeId=2')" class="imgFx"><img
+            <span @click="shareTo('sina')" class="imgFx"><img
               src="../../../../static/images/s.png" alt=""></span>
-            <span class="imgFx"><img src="../../../../static/images/w.png" alt=""></span>
+            <span class="imgFx" @click="shareTo('wechat')"><img src="../../../../static/images/w.png" alt=""></span>
           </div>
         </div>
       </div>
+    </div>
+    <!--    微信分享弹出框-->
+    <div class="wShareBox" v-if="wShow">
+      <span class="el-icon-close close" @click="closeW"></span>
+      <p class="title" >分享到微信</p>
+      <div>
+        <img :src="maPic" alt="">
+      </div>
+      <p class="wText">打开微信，点击底部的“发现”</p>
+      <p class="wText"> 使用“扫一扫”即可将网页分享至朋友圈。</p>
     </div>
   </div>
 </template>
@@ -82,7 +92,9 @@
         newsTypeList: [],
         getNewsLists: [],
         picId: this.$route.query.picId || this.$store.state.classificationId,
-        content: ''
+        content: '',
+        wShow: false
+
       }
     },
     created() {
@@ -129,16 +141,45 @@
         console.log(val);
         window.location = '#/centre?newsTypeId=' + val
       },
-      //微博分享
-      weibo(title) {  //3个参数：1要分享的内容，2分享的地址，3appkey
-        var txtVal = title;
-        var url = window.location.href;
-        window.open("http://v.t.sina.com.cn/share/share.php?appkey=4120396272&title=" + encodeURIComponent(txtVal) + "&url=" + encodeURIComponent(url));
+      //分享
+      shareTo(stype) {
+        var ftit = '';
+        var flink = '';
+        var lk = '';
+
+        //获取文章标题
+        ftit = this.getNewsLists.newsTitle;
+        //获取网页中内容的第一张图片地址作为分享图
+        flink = document.images[2].src;
+        if (typeof flink == 'undefined') {
+          flink = '';
+        }
+        //qq空间接口的传参
+        if (stype == 'qzone') {
+          window.open('https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=' + document.location.href + '?sharesource=qzone&title=' + ftit + '&pics=' + lk + '&summary=' + document.querySelector('meta[name="description"]').getAttribute('content'));
+        }
+        //新浪微博接口的传参
+        if (stype == 'sina') {
+          var sharesinastring = 'http://v.t.sina.com.cn/share/share.php?title=' + ftit + '&url=' + window.location.href + '&content=utf-8&sourceUrl=' + window.location.href + '&pic=' + flink;
+          window.open(sharesinastring);
+          // window.open('http://service.weibo.com/share/share.php?url=' + window.location + '?sharesource=weibo&title=' + ftit + '&pic=' + lk + '&appkey=2706825840');
+          // window.open('http://v.t.sina.com.cn/share/share.php?title=' + ftit + '&url=http://148.70.55.201:8088/zuelNews/index.html#/personnel/index?newsTypeId=3'+ '&content=utf-8' + '&pic=' + lk)
+        }
+        //qq好友接口的传参
+        if (stype == 'qq') {
+          window.open('http://connect.qq.com/widget/shareqq/index.html?url=' + document.location.href + '?sharesource=qzone&title=' + ftit + '&pics=' + lk + '&summary=' + document.querySelector('meta[name="description"]').getAttribute('content') + '&desc=php自学网，一个web开发交流的网站');
+        }
+        //生成二维码给微信扫描分享，php生成，也可以用jquery.qrcode.js插件实现二维码生成
+        if (stype == 'wechat') {
+          this.maPic = 'http://zixuephp.net/inc/qrcode_img.php?url=' + window.location.href
+          this.wShow = true
+        }
       },
-      shareToXl(title, url, picurl) {
-        var sharesinastring = 'http://v.t.sina.com.cn/share/share.php?title=' + title + '&url=' + url + '&content=utf-8&sourceUrl=' + url + '&pic=' + picurl;
-        window.open(sharesinastring, 'newwindow', 'height=400,width=400,top=100,left=100');
+      //  关闭微信弹框
+      closeW() {
+        this.wShow = false
       }
+
     },
   }
 </script>
@@ -237,6 +278,7 @@
     font-size: 28px;
     color: #000000;
     opacity: 1;
+    text-align: center;
   }
 
   .tabsBoxRight .times {
@@ -326,5 +368,38 @@
     height: 48px;
     border-radius: 50%;
     float: left;
+  }
+  /*  微信分享弹框*/
+  .wShareBox{
+    width: 300px;
+    height: 350px;
+    position: fixed;
+    top: 50%;
+    margin-top: -75px;
+    left: 50%;
+    margin-left: -100px;
+    background-color: #f1f1f1;
+    z-index: 10000;
+  }
+  .wShareBox .title{
+    text-align: center;
+    margin-top: 30px;
+    font-size: 16px;
+  }
+  .wShareBox .close{
+    float: right;
+    font-size: 24px;
+    cursor: pointer;
+    margin-right: 10px;
+    /*margin-top: 10px;*/
+  }
+  .wShareBox img{
+    display: block;
+    margin: 0 auto;
+    width: 200px;
+    height: 200px;
+  }
+  .wText{
+    text-align: center;
   }
 </style>
