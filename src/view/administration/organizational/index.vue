@@ -5,7 +5,7 @@
       <span @click="dialogVisibleJi=true,aTitle='添加机构'">添加机构</span>
       <span @click="dialogVisibleJi=true,aTitle='修改机构'">修改机构</span>
       <span @click="dialogVisibleJi=true,aTitle='删除机构'">删除机构</span>
-      <span @click="dialogVisible=true,Wtitle='添加人员'">添加人员</span></p>
+      <span @click="showDialogVisible(),Wtitle='添加人员'">添加人员</span></p>
     <div>
       <!--            表格-->
       <div style="margin-bottom: 50px;overflow: hidden">
@@ -103,8 +103,8 @@
         <el-form-item style="line-height: normal" label="个人详情" label-width="80px">
           <!--          <el-input v-model="personalHtmlUrl" autocomplete="off"></el-input>-->
           <!--          <vue-ueditor-wrap @onEditorChange="onEditorChange" :contentText="personalHtmlStr"></vue-ueditor-wrap>-->
-<!--          <editor-bar v-model="personalHtmlStr" :isClear="isClear" @change="change"></editor-bar>-->
-          <Uediter  v-model="personalHtmlStr" :config="ueditor.config" ref="ue"></Uediter>
+          <!--          <editor-bar v-model="personalHtmlStr" :isClear="isClear" @change="change"></editor-bar>-->
+          <Uediter v-model="personalHtmlStr" :config="ueditor.config" ref="ue"></Uediter>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -141,9 +141,9 @@
       <span slot="footer" class="dialog-footer">
     <el-button @click="dialogVisibleJi = false">取 消</el-button>
     <el-button v-if="aTitle=='修改机构'||aTitle=='添加机构'" type="primary"
-               @click="dialogVisibleJi = false,saveOrganizationInfo()">确 定</el-button>
+               @click="saveOrganizationInfo()">确 定</el-button>
     <el-button v-if="aTitle=='删除机构'" type="primary"
-               @click="dialogVisibleJi = false,deleteOrganization()">确 定</el-button>
+               @click="deleteOrganization()">确 定</el-button>
   </span>
     </el-dialog>
   </div>
@@ -213,12 +213,18 @@
       // onEditorChange(val) {
       //   this.personalHtmlStr = val
       // },
-      returnContent () {
+      //添加人员弹框
+      showDialogVisible() {
+        this.dialogVisible = true
+        this.personalHtmlStr = ""
+        setTimeout(() => {
+          this.$refs.ue.editor.body.innerHTML = this.personalHtmlStr
+        }, 200)
+      },
 
+      returnContent() {
         this.dat.content = this.$refs.ue.getUEContent()
-
         console.log(this.dat.content)
-
       },
       change(val) {
         console.log(val)
@@ -258,7 +264,23 @@
       },
       //编辑,添加 机构人员信息
       saveOrganizationUser(organizationUserId) {
-        this.personalHtmlStr=this.$refs.ue.getUEContent()
+        if (this.organizationId == '') {
+          this.$message.warning("请选择所属机构")
+          return
+        }
+        if (this.positionName == '') {
+          this.$message.warning("请填写职务名称")
+          return
+        }
+        if (this.organization_user_name == '') {
+          this.$message.warning("请填写机构人员姓名")
+          return
+        }
+        if (this.jobResponsibilities == '') {
+          this.$message.warning("请填写工作职责")
+          return
+        }
+        this.personalHtmlStr = this.$refs.ue.getUEContent()
         saveOrganizationUser({
           belongOrganizationId: this.organizationId,
           introduction: this.introduction,
@@ -272,9 +294,21 @@
           this.$message.success('操作成功')
           this.getOrganizationDetailedInfo()
         })
+        this.dialogVisible = false
+
       },
       //添加修改机构
       saveOrganizationInfo() {
+        if (this.aTitle == "修改机构") {
+          if (this.updateOrganizationId == "") {
+            this.$message.warning("请选择要修改的机构")
+            return
+          }
+        }
+        if (this.updateOrganizationName == "") {
+          this.$message.warning("机构名称不能为空")
+          return
+        }
         saveOrganizationInfo({
           organizationId: this.updateOrganizationId,
           organizationName: this.updateOrganizationName,
@@ -285,6 +319,7 @@
           // this.$message.success('操作成功')
           this.updateOrganizationId = ''
         })
+        this.dialogVisibleJi = false
       },
       //上传头像
       uploadUserImg() {
@@ -298,6 +333,12 @@
         //   cancelButtonText: '取消',
         //   type: 'warning'
         // }).then(() => {
+
+        if (this.updateOrganizationId == "") {
+          this.$message.warning("请选择要删除的机构")
+          return
+        }
+
         deleteOrganization({organizationId: this.updateOrganizationId}).then(data => {
           this.getOrganizationDetailedInfo()
           this.getOrganizations()
@@ -308,10 +349,10 @@
               message: '删除成功!'
             });
           } else {
-            // this.$message.error(data.msg)
+            this.$message.error(data.msg)
           }
-
         })
+        this.dialogVisibleJi = false
         // }).catch(() => {
         //   this.$message({
         //     type: 'info',
@@ -336,8 +377,7 @@
       getUserInfoHtml() {
         getUserInfoHtml({htmlUrl: this.personalHtmlUrl}).then(data => {
           this.personalHtmlStr = data.data
-          this.$refs.ue.editor.body.innerHTML=this.personalHtmlStr
-
+          this.$refs.ue.editor.body.innerHTML = this.personalHtmlStr
         })
       },
       //  Dialog 关闭动画结束时的回调

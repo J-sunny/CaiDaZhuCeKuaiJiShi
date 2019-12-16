@@ -14,6 +14,17 @@
         </div>
       </div>
     </div>
+    <!--    分页-->
+    <div class="pagination_box">
+      <div class="pagination">
+        <el-pagination
+          hide-on-single-page
+          :page-size="10"
+          layout="prev, pager, next"
+          :total="totalNews">
+        </el-pagination>
+      </div>
+    </div>
   </div>
 
 </template>
@@ -28,7 +39,8 @@
       return {
         newsList: [],
         listID: '',
-        picId: this.$route.query.picId
+        picId: this.$route.query.picId,
+        totalNews: 0
       }
     },
     watch: {
@@ -41,17 +53,10 @@
     },
     methods: {
       getList(val) {
-        // this.$store.state.newsTypeId = val
-        // this.$store.addStore()
-        console.log(val);
-        // console.log(this.$store.state.newsTypeId);
         if (val != undefined) {
           getNewsList({newsTypeId: val}).then(data => {
-            // console.log(val);
-            console.log(data);
             this.newsList = data.data
-            // console.log(this.$store.state.newsTypeId);
-            // console.log(this.newsList)
+            this.totalNews = data.data.length
           })
         }
 
@@ -131,7 +136,8 @@
   /*  右边....................................................*/
 
   .industry {
-    margin-bottom: 178px;
+    margin-bottom: 78px;
+    min-height: 750px;
   }
 
   .industryBox {
@@ -178,5 +184,18 @@
     white-space: nowrap;
     width: 728px;
 
+  }
+
+
+  /*  分页*/
+  .pagination_box {
+    width: 100%;
+    margin-bottom: 100px;
+  }
+
+  .pagination {
+    /*display: inline-block;*/
+    width: 450px;
+    margin: 0 auto;
   }
 </style>

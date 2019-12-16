@@ -33,7 +33,7 @@
       <!--      筛选-->
       <span class="enterArticles" @click="screen()">筛选</span>
       <!--      录入文章-->
-      <span class="enterArticles" @click="dialogVisible=true,Wtitle='添加文章'">录入文章</span>
+      <span class="enterArticles" @click="addArticle(),Wtitle='添加文章'">录入文章</span>
     </div>
     <!--    表格-->
     <div class="bottomBox">
@@ -127,7 +127,7 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
     <el-button @click="dialogVisible = false">取 消</el-button>
-    <el-button type="primary" @click="saveNews(),dialogVisible = false">确 定</el-button>
+    <el-button type="primary" @click="saveNews()">确 定</el-button>
   </span>
     </el-dialog>
   </div>
@@ -185,9 +185,21 @@
       //   this.contentText = val
       //   console.log(val)
       // },
+      //添加文章
+      addArticle() {
+        this.contentText = ""
+        this.addNavValue = ""
+        this.newsId = ""
+        this.newsTitle = ""
+        this.addNewsTypeId = ""
+
+        this.dialogVisible = true
+        setTimeout(() => {
+          this.$refs.ue.editor.body.innerHTML = this.contentText
+        }, 200)
+      },
       change(val) {
         console.log(val)
-
       },
       //获取导航栏信息
       getNavigationBar() {
@@ -220,7 +232,20 @@
       },
       //  修改录入文章
       saveNews() {
-        this.contentText=this.$refs.ue.getUEContent()
+        if (this.addNavValue == '') {
+          this.$message.warning("请选择文章主页面")
+          return
+        }
+        if (this.addNewsTypeId == '') {
+          this.$message.warning("请选择新闻模块")
+          return
+        }
+        if (this.newsTitle == '') {
+          this.$message.warning("请填写文章标题")
+          return
+        }
+
+        this.contentText = this.$refs.ue.getUEContent()
         console.log(this.contentText);
         saveNews({
           classificationId: this.addNavValue,
@@ -243,6 +268,7 @@
           this.addNewsList = []
           // this.newsList = []
         })
+        this.dialogVisible = false
         console.log(this.contentText);
       },
       //获取导航栏信息--添加修改
@@ -279,7 +305,7 @@
         getNews({newsTypeId: newsTypeId, createTime: createTime, newsId: newsId}).then(data => {
           console.log(data);
           this.contentText = data.data
-          this.$refs.ue.editor.body.innerHTML=this.contentText
+          this.$refs.ue.editor.body.innerHTML = this.contentText
         })
       },
       //  删除文章
